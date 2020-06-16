@@ -98,19 +98,19 @@ namespace zmq
             if (++end_pos != N)
                 return;
 
-            // å¹¶è¿”å›spare_chunkï¼Œå¹¶ä¸”spare_chunk=NULL
+            // ²¢·µ»Øspare_chunk£¬²¢ÇÒspare_chunk=NULL
             chunk_t *sc = spare_chunk.xchg (NULL);
             if (sc) {
-                // spare_chunkä¸ä¸ºNULLï¼Œé“¾æ¥end_chunkå’Œspare_chunk
+                // spare_chunk²»ÎªNULL£¬Á´½Óend_chunkºÍspare_chunk
                 end_chunk->next = sc;
                 sc->prev = end_chunk;
             } else {
-                // spare_chunkä¸ºNULLï¼Œmalloc chunk_tï¼Œç„¶åé“¾æ¥end_chunkå’Œspare_chunk
+                // spare_chunkÎªNULL£¬malloc chunk_t£¬È»ºóÁ´½Óend_chunkºÍspare_chunk
                 end_chunk->next = (chunk_t*) malloc (sizeof (chunk_t));
                 alloc_assert (end_chunk->next);
                 end_chunk->next->prev = end_chunk;
             }
-            // end_chunkæŒ‡å‘spare_chunk
+            // end_chunkÖ¸Ïòspare_chunk
             end_chunk = end_chunk->next;
             end_pos = 0;
         }
@@ -129,7 +129,7 @@ namespace zmq
                 // back_pos!=0
                 --back_pos;
             else {
-                // back_pos==0ï¼Œback_chunkæŒ‡å‘prev
+                // back_pos==0£¬back_chunkÖ¸Ïòprev
                 back_pos = N - 1;
                 back_chunk = back_chunk->prev;
             }
@@ -141,7 +141,7 @@ namespace zmq
             if (end_pos)
                 --end_pos;
             else {
-                // end_pos==0ï¼Œæ’¤æ¶ˆ åˆ›å»ºæ–°çš„chunk
+                // end_pos==0£¬³·Ïû´´½¨µÄchunk
                 end_pos = N - 1;
                 end_chunk = end_chunk->prev;
                 free (end_chunk->next);
@@ -154,7 +154,7 @@ namespace zmq
         {n 
             if (++ begin_pos == N) {
                 chunk_t *o = begin_chunk;
-                // begin_chunkæŒ‡å‘next
+                // begin_chunkÖ¸Ïònext
                 begin_chunk = begin_chunk->next;
                 begin_chunk->prev = NULL;
                 begin_pos = 0;
@@ -162,9 +162,9 @@ namespace zmq
                 //  'o' has been more recently used than spare_chunk,
                 //  so for cache reasons we'll get rid of the spare and
                 //  use 'o' as the spare.
-                // è¿”å›spare_chunkï¼Œå¹¶ä¸”spare_chunk=begin_chunk
+                // ·µ»Øspare_chunk£¬²¢ÇÒspare_chunk=begin_chunk
                 chunk_t *cs = spare_chunk.xchg (o);
-                // é‡Šæ”¾äº¤æ¢å‡ºçš„spare_chunk
+                // ÊÍ·Å½»»»³öµÄspare_chunk
                 free (cs);
             }
         }
