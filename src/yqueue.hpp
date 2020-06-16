@@ -98,15 +98,19 @@ namespace zmq
             if (++end_pos != N)
                 return;
 
+            // 并返回spare_chunk，并且spare_chunk=NULL
             chunk_t *sc = spare_chunk.xchg (NULL);
             if (sc) {
+                // spare_chunk不为NULL，链接end_chunk和spare_chunk
                 end_chunk->next = sc;
                 sc->prev = end_chunk;
             } else {
+                // spare_chunk为NULL，malloc chunk_t，然后链接end_chunk和spare_chunk
                 end_chunk->next = (chunk_t*) malloc (sizeof (chunk_t));
                 alloc_assert (end_chunk->next);
                 end_chunk->next->prev = end_chunk;
             }
+            // end_chunk指向spare_chunk
             end_chunk = end_chunk->next;
             end_pos = 0;
         }
@@ -122,8 +126,10 @@ namespace zmq
         {
             //  First, move 'back' one position backwards.
             if (back_pos)
+                // back_pos!=0
                 --back_pos;
             else {
+                // back_pos==0，back_chunk指向prev
                 back_pos = N - 1;
                 back_chunk = back_chunk->prev;
             }
@@ -135,6 +141,7 @@ namespace zmq
             if (end_pos)
                 --end_pos;
             else {
+                // end_pos==0，撤消 创建新的chunk
                 end_pos = N - 1;
                 end_chunk = end_chunk->prev;
                 free (end_chunk->next);
@@ -144,9 +151,10 @@ namespace zmq
 
         //  Removes an element from the front end of the queue.
         inline void pop ()
-        {
+        {n 
             if (++ begin_pos == N) {
                 chunk_t *o = begin_chunk;
+                // begin_chunk指向next
                 begin_chunk = begin_chunk->next;
                 begin_chunk->prev = NULL;
                 begin_pos = 0;
@@ -154,7 +162,9 @@ namespace zmq
                 //  'o' has been more recently used than spare_chunk,
                 //  so for cache reasons we'll get rid of the spare and
                 //  use 'o' as the spare.
+                // 返回spare_chunk，并且spare_chunk=begin_chunk
                 chunk_t *cs = spare_chunk.xchg (o);
+                // 释放交换出的spare_chunk
                 free (cs);
             }
         }
